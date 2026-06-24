@@ -58,7 +58,7 @@ function Resolve-ProviderModel([string]$Value, [string]$BaseUrl) {
 
 function Resolve-ProviderMode([string]$Mode, [string]$BaseUrl, [string]$Token, [string]$ModelValue) {
   if ($Mode -eq 'openai' -or $Mode -eq 'anthropic') { return $Mode }
-  if ($Token -eq 'local-deepseek-proxy') { return 'openai' }
+  if ($Token -in @('local-launcher-proxy', 'local-deepseek-proxy')) { return 'openai' }
   if (Test-AnthropicCompatibleUrl $BaseUrl) { return 'anthropic' }
   if (Test-ProxyProviderModel $ModelValue) { return 'openai' }
   return 'openai'
@@ -319,7 +319,7 @@ if ($providerMode -eq 'anthropic') {
   Remove-Item Env:\PROVIDER_API_KEY -ErrorAction SilentlyContinue
   Remove-Item Env:\PROVIDER_BASE_URL -ErrorAction SilentlyContinue
   Remove-Item Env:\PROVIDER_MODEL -ErrorAction SilentlyContinue
-  if ($env:ANTHROPIC_AUTH_TOKEN -eq 'local-deepseek-proxy') {
+  if ($env:ANTHROPIC_AUTH_TOKEN -in @('local-launcher-proxy', 'local-deepseek-proxy')) {
     Remove-Item Env:\ANTHROPIC_AUTH_TOKEN -ErrorAction SilentlyContinue
   }
   if ($env:ANTHROPIC_BASE_URL -match 'openrouter\.ai' -and $env:ANTHROPIC_AUTH_TOKEN) {
@@ -342,7 +342,7 @@ if ($ApiKey) {
   }
 }
 if ($isDeepSeek) {
-  if (-not $env:DEEPSEEK_API_KEY -and $env:ANTHROPIC_AUTH_TOKEN -and $env:ANTHROPIC_AUTH_TOKEN -ne 'local-deepseek-proxy') {
+  if (-not $env:DEEPSEEK_API_KEY -and $env:ANTHROPIC_AUTH_TOKEN -and $env:ANTHROPIC_AUTH_TOKEN -notin @('local-launcher-proxy', 'local-deepseek-proxy')) {
     $env:DEEPSEEK_API_KEY = $env:ANTHROPIC_AUTH_TOKEN
   }
   if (-not $env:DEEPSEEK_API_KEY -and $env:ANTHROPIC_API_KEY) {
@@ -367,7 +367,7 @@ if ($isDeepSeek) {
   $env:DEEPSEEK_MODEL = Resolve-ProviderModel $env:DEEPSEEK_MODEL $(if ($env:DEEPSEEK_BASE_URL) { $env:DEEPSEEK_BASE_URL } else { $env:ANTHROPIC_BASE_URL })
   $env:PROVIDER_MODEL = $(if ($env:PROVIDER_MODEL) { $env:PROVIDER_MODEL } else { $env:DEEPSEEK_MODEL })
   $env:ANTHROPIC_MODEL = $env:PROVIDER_MODEL
-  $env:ANTHROPIC_AUTH_TOKEN = 'local-deepseek-proxy'
+  $env:ANTHROPIC_AUTH_TOKEN = 'local-launcher-proxy'
   Remove-Item Env:\ANTHROPIC_API_KEY -ErrorAction SilentlyContinue
 
   $proxyScript = Join-Path $workspace 'scripts\deepseek-claude-proxy.cjs'

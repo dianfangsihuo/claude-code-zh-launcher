@@ -1,7 +1,7 @@
 {
   "name": "claude-code-zh-launcher",
-  "version": "1.0.0",
-  "description": "Claude Code 中文启动器：Windows 一键安装，填入 API Key 即可用 DeepSeek、OpenRouter、硅基流动等模型开始编程。",
+  "version": "1.0.1",
+  "description": "Claude Code 中文启动器：Windows 一键安装，兼容 DeepSeek、OpenRouter、硅基流动和各类 OpenAI-compatible/Anthropic-compatible 中转。",
   "main": "index.js",
   "scripts": {
     "claude": "powershell -NoProfile -ExecutionPolicy Bypass -File .\\scripts\\start-claude.ps1",

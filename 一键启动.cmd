@@ -1,7 +1,7 @@
 @echo off
 setlocal
 cd /d "%~dp0"
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0OneClick-DeepSeek.ps1"
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0OneClick-Launcher.ps1"
 set "exitcode=%ERRORLEVEL%"
 if not "%exitcode%"=="0" (
   echo.

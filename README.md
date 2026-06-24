@@ -6,6 +6,8 @@
   <img src="assets/claude-code-style-icon.png" width="128" alt="Claude Code 中文启动器图标">
 </p>
 
+![Claude Code 中文启动器界面](assets/launcher-screenshot.png)
+
 ## 适合谁
 
 - 想在 Windows 上快速跑起 Claude Code，但不想手动折腾环境变量和启动参数。
@@ -15,9 +17,9 @@
 
 ## 快速开始
 
-1. 打开右侧或下方的 GitHub Releases，下载 `ClaudeCode-ZH-Launcher-v1.0.0.zip`。
+1. 打开右侧或下方的 GitHub Releases，下载 `ClaudeCode-ZH-Launcher-v1.0.1.zip`。
 2. 解压到任意目录。
-3. 双击 `一键启动DeepSeek.cmd`。
+3. 双击 `一键启动.cmd`。
 4. 在启动器里选择服务商预设，填入 URL、模型和你自己的 API Key。
 5. 点击启动，开始使用 Claude Code 编程。
 
@@ -72,8 +74,8 @@ Reasoning: auto/off/low/medium/high/xhigh/max
 
 ## 里面有什么
 
-- `一键启动DeepSeek.cmd`：给普通用户双击的入口。
-- `OneClick-DeepSeek.ps1`：一键安装、复制、依赖安装、快捷方式创建和首次配置。
+- `一键启动.cmd`：给普通用户双击的入口，适合 DeepSeek、OpenRouter、硅基流动和各类中转。
+- `OneClick-Launcher.ps1`：一键安装、复制、依赖安装、快捷方式创建和首次配置。
 - `scripts/claude-launcher.ps1`：中文图形启动器。
 - `scripts/start-claude.ps1`：实际启动 Claude Code 的脚本。
 - `scripts/deepseek-claude-proxy.cjs`：把 Anthropic `/v1/messages` 转成 OpenAI-compatible `/v1/chat/completions` 的本地代理。

@@ -78,7 +78,7 @@ function Copy-NewestFiles([string]$Source, [string]$Target) {
   New-Item -ItemType Directory -Force -Path $targetFull | Out-Null
   $nestedName = 'claude code'
   $nestedPackage = Join-Path $targetFull $nestedName
-  if ((Test-Path -LiteralPath (Join-Path $nestedPackage 'OneClick-DeepSeek.ps1')) -and ($sourceFull -ne $nestedPackage)) {
+  if (((Test-Path -LiteralPath (Join-Path $nestedPackage 'OneClick-Launcher.ps1')) -or (Test-Path -LiteralPath (Join-Path $nestedPackage 'OneClick-DeepSeek.ps1'))) -and ($sourceFull -ne $nestedPackage)) {
     Remove-Item -LiteralPath $nestedPackage -Recurse -Force
     Add-Log "Removed nested package directory $nestedPackage"
   }
@@ -253,7 +253,7 @@ DEEPSEEK_BASE_URL=$ProviderBaseUrl
 DEEPSEEK_API_KEY=$Token
 DEEPSEEK_MODEL=$ModelId
 ANTHROPIC_BASE_URL=http://127.0.0.1:17860
-ANTHROPIC_AUTH_TOKEN=local-deepseek-proxy
+ANTHROPIC_AUTH_TOKEN=local-launcher-proxy
 ANTHROPIC_MODEL=$ModelId
 PROVIDER_REASONING=auto
 CLAUDE_WORKSPACE=$Workspace
@@ -371,7 +371,7 @@ function Show-LogTail {
 $sourceRoot = $PSScriptRoot
 $installRoot = [System.IO.Path]::GetFullPath($InstallDir)
 New-Item -ItemType Directory -Force -Path $installRoot | Out-Null
-$script:LogFile = Join-Path $installRoot 'DeepSeek-OneClick.log'
+$script:LogFile = Join-Path $installRoot 'OneClick-Launcher.log'
 [System.IO.File]::WriteAllText($script:LogFile, "DeepSeek one-click run started $(Get-Date -Format s)$([Environment]::NewLine)", $script:Utf8NoBom)
 
 try {

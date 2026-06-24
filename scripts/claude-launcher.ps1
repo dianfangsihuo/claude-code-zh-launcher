@@ -35,7 +35,7 @@ function Get-LauncherConfigPath {
 function Test-UsableValue([string]$Value) {
   if (-not $Value) { return $false }
   if ($Value -match 'replace_with') { return $false }
-  if ($Value -eq 'local-deepseek-proxy') { return $false }
+  if ($Value -in @('local-launcher-proxy', 'local-deepseek-proxy')) { return $false }
   return $true
 }
 
@@ -269,7 +269,7 @@ function New-ConfigContent([string]$BaseUrl, [string]$ApiKey, [string]$Model, [s
       "DEEPSEEK_API_KEY=$ApiKey",
       "DEEPSEEK_MODEL=$selectedModel",
       "ANTHROPIC_BASE_URL=http://127.0.0.1:17860",
-      "ANTHROPIC_AUTH_TOKEN=local-deepseek-proxy",
+      "ANTHROPIC_AUTH_TOKEN=local-launcher-proxy",
       "ANTHROPIC_MODEL=$selectedModel",
       "PROVIDER_REASONING=$selectedReasoning",
       "CLAUDE_WORKSPACE=$Folder",

@@ -51,7 +51,7 @@ if ($providerMode -ne 'anthropic') {
   $listener.Stop()
 
   $proxyBaseUrl = $(if ($env:PROVIDER_BASE_URL) { $env:PROVIDER_BASE_URL } elseif ($env:DEEPSEEK_BASE_URL) { $env:DEEPSEEK_BASE_URL } else { $env:ANTHROPIC_BASE_URL })
-  $proxyApiKey = $(if ($env:PROVIDER_API_KEY) { $env:PROVIDER_API_KEY } elseif ($env:DEEPSEEK_API_KEY) { $env:DEEPSEEK_API_KEY } elseif ($env:ANTHROPIC_AUTH_TOKEN -and $env:ANTHROPIC_AUTH_TOKEN -ne 'local-deepseek-proxy') { $env:ANTHROPIC_AUTH_TOKEN } else { $env:ANTHROPIC_API_KEY })
+  $proxyApiKey = $(if ($env:PROVIDER_API_KEY) { $env:PROVIDER_API_KEY } elseif ($env:DEEPSEEK_API_KEY) { $env:DEEPSEEK_API_KEY } elseif ($env:ANTHROPIC_AUTH_TOKEN -and $env:ANTHROPIC_AUTH_TOKEN -notin @('local-launcher-proxy', 'local-deepseek-proxy')) { $env:ANTHROPIC_AUTH_TOKEN } else { $env:ANTHROPIC_API_KEY })
   $proxyModel = $(if ($env:PROVIDER_MODEL) { $env:PROVIDER_MODEL } elseif ($env:DEEPSEEK_MODEL) { $env:DEEPSEEK_MODEL } else { $env:ANTHROPIC_MODEL })
   $proxyReasoning = $(if ($env:PROVIDER_REASONING) { $env:PROVIDER_REASONING } else { 'auto' })
 
@@ -79,7 +79,7 @@ if ($providerMode -ne 'anthropic') {
     if ($i -eq 39) { throw "Local provider proxy failed to start." }
   }
   $env:ANTHROPIC_BASE_URL = "http://127.0.0.1:$proxyPort"
-  $env:ANTHROPIC_AUTH_TOKEN = 'local-deepseek-proxy'
+  $env:ANTHROPIC_AUTH_TOKEN = 'local-launcher-proxy'
   $env:ANTHROPIC_MODEL = $proxyModel
   Remove-Item Env:\ANTHROPIC_API_KEY -ErrorAction SilentlyContinue
 }

@@ -19,7 +19,7 @@ function requestJson(port, method, pathname, body) {
       method,
       path: pathname,
       headers: {
-        Authorization: 'Bearer local-deepseek-proxy',
+        Authorization: 'Bearer local-launcher-proxy',
         'content-type': 'application/json',
         'content-length': Buffer.byteLength(raw)
       },
