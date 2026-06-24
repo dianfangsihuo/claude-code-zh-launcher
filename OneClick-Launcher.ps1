@@ -284,6 +284,7 @@ function Ensure-Node {
 
 function Test-RequiredFiles([string]$Workspace) {
   foreach ($rel in @(
+    'OneClick-Launcher.ps1',
     'scripts\claude-launcher.ps1',
     'scripts\start-claude.ps1',
     'scripts\deepseek-claude-proxy.cjs',
@@ -300,15 +301,55 @@ function Test-RequiredFiles([string]$Workspace) {
   Write-Ok "Required files exist"
 }
 
+function Get-LauncherCmdName {
+  return (-join (@(19968, 38190, 21551, 21160) | ForEach-Object { [char]$_ })) + '.cmd'
+}
+
+function Get-LegacyLauncherCmdName {
+  return (-join (@(19968, 38190, 21551, 21160) | ForEach-Object { [char]$_ })) + 'DeepSeek.cmd'
+}
+
+function Write-LauncherCmd([string]$Path) {
+  $content = @'
+@echo off
+setlocal
+cd /d "%~dp0"
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0OneClick-Launcher.ps1"
+set "exitcode=%ERRORLEVEL%"
+if not "%exitcode%"=="0" (
+  echo.
+  echo One-click run failed with exit code %exitcode%.
+  pause
+)
+exit /b %exitcode%
+'@
+  [System.IO.File]::WriteAllText($Path, $content + [Environment]::NewLine, $script:Utf8NoBom)
+  Add-Log "Recreated launcher command: $Path"
+}
+
+function Resolve-LauncherCmd([string]$Workspace) {
+  $current = Join-Path $Workspace (Get-LauncherCmdName)
+  if (Test-Path -LiteralPath $current) { return $current }
+
+  $legacy = Join-Path $Workspace (Get-LegacyLauncherCmdName)
+  if (Test-Path -LiteralPath $legacy) {
+    Write-LauncherCmd -Path $current
+    return $current
+  }
+
+  $mainScript = Join-Path $Workspace 'OneClick-Launcher.ps1'
+  if (-not (Test-Path -LiteralPath $mainScript)) {
+    throw "Missing one-click launcher script: $mainScript"
+  }
+  Write-LauncherCmd -Path $current
+  return $current
+}
+
 function Create-Shortcut([string]$Workspace) {
   $desktop = [Environment]::GetFolderPath('Desktop')
   $shortcutPath = Join-Path $desktop 'Claude Code.lnk'
-  $oneClickName = (-join (@(19968, 38190, 21551, 21160) | ForEach-Object { [char]$_ })) + 'DeepSeek.cmd'
-  $oneClick = Join-Path $Workspace $oneClickName
+  $oneClick = Resolve-LauncherCmd -Workspace $Workspace
   $icon = Join-Path $Workspace 'assets\claude-code-style-icon.ico'
-  if (-not (Test-Path -LiteralPath $oneClick)) {
-    throw "Missing one-click launcher: $oneClick"
-  }
   $shell = New-Object -ComObject WScript.Shell
   $shortcut = $shell.CreateShortcut($shortcutPath)
   $shortcut.TargetPath = $oneClick
@@ -372,16 +413,16 @@ $sourceRoot = $PSScriptRoot
 $installRoot = [System.IO.Path]::GetFullPath($InstallDir)
 New-Item -ItemType Directory -Force -Path $installRoot | Out-Null
 $script:LogFile = Join-Path $installRoot 'OneClick-Launcher.log'
-[System.IO.File]::WriteAllText($script:LogFile, "DeepSeek one-click run started $(Get-Date -Format s)$([Environment]::NewLine)", $script:Utf8NoBom)
+[System.IO.File]::WriteAllText($script:LogFile, "Claude Code launcher one-click run started $(Get-Date -Format s)$([Environment]::NewLine)", $script:Utf8NoBom)
 
 try {
   $modelId = Normalize-Model $Model
-  Write-Host 'DeepSeek Claude Code one-click install / repair / launch' -ForegroundColor Yellow
+  Write-Host 'Claude Code launcher one-click install / repair / launch' -ForegroundColor Yellow
   Write-Host "Install directory: $installRoot"
   Write-Host "Log file: $script:LogFile"
 
   if ($RequireKeyAndVerify -and -not $AuthToken) {
-    $secure = Read-Host 'Paste DeepSeek API key' -AsSecureString
+    $secure = Read-Host 'Paste provider API key' -AsSecureString
     $bstr = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($secure)
     try { $AuthToken = [Runtime.InteropServices.Marshal]::PtrToStringBSTR($bstr) } finally { [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($bstr) }
   }

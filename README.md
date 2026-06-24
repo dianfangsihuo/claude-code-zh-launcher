@@ -17,7 +17,7 @@
 
 ## 快速开始
 
-1. 打开右侧或下方的 GitHub Releases，下载 `ClaudeCode-ZH-Launcher-v1.0.1.zip`。
+1. 打开右侧或下方的 GitHub Releases，下载 `ClaudeCode-ZH-Launcher-v1.0.2.zip`。
 2. 解压到任意目录。
 3. 双击 `一键启动.cmd`。
 4. 在启动器里选择服务商预设，填入 URL、模型和你自己的 API Key。
