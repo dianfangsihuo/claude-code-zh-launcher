@@ -86,6 +86,51 @@ function Get-ModelEndpointCandidates([string]$Url) {
   return @("$u/v1/models", "$u/models")
 }
 
+function Get-ChatCompletionEndpointCandidates([string]$Url) {
+  $u = $Url.Trim().TrimEnd('/')
+  if ($u -match '^https://api\.deepseek\.com/?$') {
+    return @("$u/chat/completions")
+  }
+  $path = ([Uri]$u).AbsolutePath.TrimEnd('/')
+  if ($path -match '/(v\d+(?:beta)?|openai)$') {
+    return @("$u/chat/completions")
+  }
+  return @("$u/v1/chat/completions", "$u/chat/completions")
+}
+
+function Invoke-ChatCompletionProbe([string]$Url, $Headers, [string]$Model) {
+  if (-not (Test-UsableValue $Model)) {
+    throw 'Current model is empty.'
+  }
+
+  $body = @{
+    model = $Model
+    messages = @(
+      @{
+        role = 'user'
+        content = 'ping'
+      }
+    )
+    max_tokens = 4
+    stream = $false
+  } | ConvertTo-Json -Depth 8
+
+  $lastError = $null
+  foreach ($endpoint in (Get-ChatCompletionEndpointCandidates $Url)) {
+    try {
+      $response = Invoke-RestMethod -Method Post -Uri $endpoint -Headers $Headers -ContentType 'application/json' -Body $body -TimeoutSec 30
+      if ($response.choices -or $response.id) {
+        return $endpoint
+      }
+      $lastError = "$endpoint returned no choices"
+    } catch {
+      $lastError = "$endpoint -> $($_.Exception.Message)"
+    }
+  }
+
+  throw $lastError
+}
+
 function Get-OpenRouterAuthEndpoint([string]$Url) {
   $u = $Url.Trim().TrimEnd('/')
   if ($u.EndsWith('/v1', [System.StringComparison]::OrdinalIgnoreCase)) { return "$u/key" }
@@ -505,6 +550,7 @@ $detectButton.Add_Click({
 
     $models = @()
     $usedEndpoint = $null
+    $modelErrors = @()
     foreach ($endpoint in (Get-ModelEndpointCandidates $urlBox.Text)) {
       try {
         $response = Invoke-RestMethod -Method Get -Uri $endpoint -Headers $headers -TimeoutSec 15
@@ -516,14 +562,27 @@ $detectButton.Add_Click({
           break
         }
       } catch {
+        $modelErrors += "$endpoint -> $($_.Exception.Message)"
       }
     }
 
+    $current = $modelCombo.Text
     if ($models.Count -eq 0) {
-      throw 'No models returned.'
+      if ([string]$providerCombo.SelectedItem -ne 'openai') {
+        $detail = $(if ($modelErrors.Count -gt 0) { ' Last error: ' + $modelErrors[-1] } else { '' })
+        throw "No models returned.$detail"
+      }
+
+      try {
+        $probeModel = Resolve-ProviderModel $current $urlBox.Text
+        $usedEndpoint = Invoke-ChatCompletionProbe $urlBox.Text $headers $probeModel
+        $models = @($current)
+      } catch {
+        $detail = $(if ($modelErrors.Count -gt 0) { ' Last /models error: ' + $modelErrors[-1] } else { '' })
+        throw "No models returned, and current model probe failed: $($_.Exception.Message).$detail"
+      }
     }
 
-    $current = $modelCombo.Text
     $modelCombo.Items.Clear()
     [void]$modelCombo.Items.AddRange([string[]]$models)
     if ($models -contains $current) {
@@ -535,7 +594,11 @@ $detectButton.Add_Click({
     }
 
     $claudeBase = Normalize-ClaudeBaseUrl $urlBox.Text ([string]$providerCombo.SelectedItem)
-    $status.Text = (S @(26816,27979,25104,21151,65306)) + " $($models.Count) models, endpoint: $usedEndpoint, Claude base: $claudeBase"
+    if ($models.Count -eq 1 -and $models[0] -eq $current -and $usedEndpoint -match '/chat/completions$') {
+      $status.Text = (S @(26816,27979,25104,21151,65306)) + " current model works via chat probe, endpoint: $usedEndpoint, Claude base: $claudeBase"
+    } else {
+      $status.Text = (S @(26816,27979,25104,21151,65306)) + " $($models.Count) models, endpoint: $usedEndpoint, Claude base: $claudeBase"
+    }
   } catch {
     $status.Text = (S @(26816,27979,22833,36133,65306)) + " $($_.Exception.Message)"
   } finally {

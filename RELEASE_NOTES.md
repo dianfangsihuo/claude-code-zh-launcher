@@ -1,17 +1,17 @@
-# Claude Code 中文启动器 v1.0.2
+# Claude Code 中文启动器 v1.0.3
 
-这是一个安装修复版本，重点解决入口文件改名后旧逻辑仍寻找 `一键启动DeepSeek.cmd` 的问题。
+这是一个模型检测修复版本，重点改善本地 OpenAI-compatible 中转的兼容性。
 
 ## 修复
 
-- 桌面快捷方式创建现在优先使用通用入口 `一键启动.cmd`。
-- 如果安装目录里缺少 `一键启动.cmd`，安装脚本会自动重新生成，不再因为入口文件丢失而中断。
-- 仍兼容旧的 `一键启动DeepSeek.cmd`：检测到旧入口时会补写新的通用入口。
-- 一键安装脚本的标题和日志文案从 DeepSeek 专属描述改为更通用的 Claude Code 启动器描述。
+- “检测模型”不再只依赖 `/models` 返回列表。
+- 当 `/models` 超时、404、空列表或不兼容时，会用当前填写的模型发起一个很小的 `/chat/completions` 探针。
+- 像 `http://localhost:52030/v1` 这类能聊天但不暴露模型列表的本地中转，现在可以通过检测。
+- 检测失败时会显示最后一个 `/models` 错误和 chat 探针错误，不再只给模糊的 `No models returned.`。
 
 ## 下载后怎么用
 
-1. 下载 `ClaudeCode-ZH-Launcher-v1.0.2.zip`。
+1. 下载 `ClaudeCode-ZH-Launcher-v1.0.3.zip`。
 2. 解压。
 3. 双击 `一键启动.cmd`。
 4. 在启动器中填入 API Key、URL 和模型。
