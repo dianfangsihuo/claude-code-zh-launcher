@@ -1,0 +1,26 @@
+# Local secrets and machine-specific config
+.env
+.env.*
+!.env.example
+.claude/
+.learnings/
+
+# Dependencies and generated output
+node_modules/
+dist/
+release/
+tmp/
+temp/
+
+# Logs and diagnostics
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+*.bak
+*.bak-*
+DeepSeek-Claude-Diagnose-*.txt
+
+# Local packages and copied workspaces
+*.zip
+claude code/

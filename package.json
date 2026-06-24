@@ -1,0 +1,41 @@
+{
+  "name": "claude-code-zh-launcher",
+  "version": "1.0.0",
+  "description": "Claude Code 中文启动器：Windows 一键安装，填入 API Key 即可用 DeepSeek、OpenRouter、硅基流动等模型开始编程。",
+  "main": "index.js",
+  "scripts": {
+    "claude": "powershell -NoProfile -ExecutionPolicy Bypass -File .\\scripts\\start-claude.ps1",
+    "pet": "powershell -NoProfile -Sta -WindowStyle Minimized -ExecutionPolicy Bypass -File .\\scripts\\claude-pet.ps1",
+    "launcher": "powershell -NoProfile -ExecutionPolicy Bypass -File .\\scripts\\claude-launcher.ps1",
+    "claude:print": "powershell -NoProfile -ExecutionPolicy Bypass -File .\\scripts\\start-claude.ps1 -Print",
+    "codex:1": "powershell -NoProfile -ExecutionPolicy Bypass -File .\\scripts\\start-codex-isolated.ps1 1",
+    "codex:2": "powershell -NoProfile -ExecutionPolicy Bypass -File .\\scripts\\start-codex-isolated.ps1 2",
+    "codex:3": "powershell -NoProfile -ExecutionPolicy Bypass -File .\\scripts\\start-codex-isolated.ps1 3",
+    "codex:4": "powershell -NoProfile -ExecutionPolicy Bypass -File .\\scripts\\start-codex-isolated.ps1 4",
+    "test:model": "powershell -NoProfile -ExecutionPolicy Bypass -File .\\scripts\\test-claude-model.ps1",
+    "test:proxy": "node .\\scripts\\test-proxy-reasoning.cjs"
+  },
+  "keywords": [
+    "claude-code",
+    "deepseek",
+    "openrouter",
+    "siliconflow",
+    "launcher",
+    "windows",
+    "chinese"
+  ],
+  "author": "dianfangsihuo",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dianfangsihuo/claude-code-zh-launcher.git"
+  },
+  "bugs": {
+    "url": "https://github.com/dianfangsihuo/claude-code-zh-launcher/issues"
+  },
+  "homepage": "https://github.com/dianfangsihuo/claude-code-zh-launcher#readme",
+  "type": "commonjs",
+  "devDependencies": {
+    "@anthropic-ai/claude-code": "^2.1.146"
+  }
+}
